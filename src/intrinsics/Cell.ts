@@ -7,6 +7,7 @@ export interface ICellOnRender {
 export interface ICellAttributes {
   id: string
   numFmt?: string
+  color?: string
   onRender?: ICellOnRender
 }
 

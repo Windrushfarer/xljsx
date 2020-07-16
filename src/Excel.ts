@@ -193,6 +193,10 @@ class Excel {
     if (cell.options.numFmt) {
       excelCell.numFmt = cell.options.numFmt
     }
+
+    if (cell.options.color) {
+      excelCell.font = { color: { argb: cell.options.color } }
+    }
   }
 
   private setWorksheet(excelWorksheet: excel.Worksheet, worksheet: WorksheetElement) {

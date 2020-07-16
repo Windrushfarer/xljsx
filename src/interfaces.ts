@@ -29,6 +29,7 @@ export interface FC<P = {}> {
 export interface CellAttributes {
   id: string
   numFmt?: string
+  color?: string
 }
 
 export interface RowGroupAttributes {}
