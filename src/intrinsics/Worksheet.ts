@@ -3,22 +3,17 @@ import RowGroupElement from './RowGroup'
 import HeaderElement from './Header'
 
 import { Node } from '../interfaces'
+import { filterChildren } from '../utils/filterChildren';
 
 export interface IWorksheetAttributes {
   name: string
   defaultRowHeight?: number
 }
 
-const filterChildren = (children: Node[]): Array<RowElement | RowGroupElement> => {
-  return children.reduce<Array<RowElement | RowGroupElement>>((acc, curr) => {
-    if (Array.isArray(curr)) {
-      return [...acc, ...filterChildren(curr)]
-    }
+type Row = RowElement | RowGroupElement
 
-    return RowElement.isRowElement(curr) || RowGroupElement.isRowGroupElement(curr)
-      ? [...acc, curr]
-      : acc
-  }, [])
+function isRow(node: Node) {
+  return RowElement.isRowElement(node) || RowGroupElement.isRowGroupElement(node)
 }
 
 export class WorksheetElement {
@@ -34,7 +29,7 @@ export class WorksheetElement {
   constructor(attributes: IWorksheetAttributes, children: Node[]) {
     this.options = attributes
 
-    const filteredValues = filterChildren(children)
+    const filteredValues = filterChildren<Row>(children, isRow)
     const header = children.find(
       (node): node is HeaderElement => HeaderElement.isHeaderElement(node)
     )

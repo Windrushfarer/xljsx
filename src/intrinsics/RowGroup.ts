@@ -2,6 +2,7 @@ import * as exceljs from 'exceljs'
 
 import RowElement from './Row'
 import { Node, IRowGroupRenderContext, IWorksheetChildrenRenderResult } from '../interfaces'
+import { filterChildren } from '../utils/filterChildren';
 
 export interface IRowGroupOnRender {
   (rowGroupElement: RowGroupElement, result: IWorksheetChildrenRenderResult, context: IRowGroupRenderContext): void
@@ -11,14 +12,10 @@ export interface IRowGroupAttributes {
   onRender?: IRowGroupOnRender
 }
 
-const filterChildren = (children: Node[]): Array<RowElement | RowGroupElement> => {
-  return children.reduce<Array<RowElement | RowGroupElement>>((acc, curr) => {
-    if (Array.isArray(curr)) {
-      return [...acc, ...filterChildren(curr)]
-    }
+type Row = RowElement | RowGroupElement
 
-    return RowElement.isRowElement(curr) || RowGroupElement.isRowGroupElement(curr) ? [...acc, curr] : acc
-  }, [])
+function isRow(node: Node) {
+  return RowElement.isRowElement(node) || RowGroupElement.isRowGroupElement(node)
 }
 
 export class RowGroupElement {
@@ -34,7 +31,7 @@ export class RowGroupElement {
   constructor(attributes: IRowGroupAttributes, children: Node[]) {
     this.options = attributes
 
-    this.rowsAndGroups = filterChildren(children)
+    this.rowsAndGroups = filterChildren<Row>(children, isRow)
   }
 }
 

@@ -1,6 +1,6 @@
 import * as exceljs from 'exceljs'
-import { Node, IRowRenderContext, IRowRenderResult } from '../interfaces'
-
+import { IRowRenderContext, IRowRenderResult, Node } from '../interfaces'
+import { filterChildren } from '../utils/filterChildren';
 import CellElement from './Cell'
 
 export interface IRowOnRender {
@@ -11,14 +11,8 @@ export interface IRowAttributes extends Partial<exceljs.Style> {
   onRender?: IRowOnRender
 }
 
-const filterChildren = (children: Node[]): CellElement[] => {
-  return children.reduce<CellElement[]>((acc, curr) => {
-    if (Array.isArray(curr)) {
-      return [...acc, ...filterChildren(curr)]
-    }
-
-    return CellElement.isCellElement(curr) ? [...acc, curr] : acc
-  }, [])
+function isCellElement(node: Node) {
+  return CellElement.isCellElement(node)
 }
 
 class RowElement {
@@ -33,9 +27,7 @@ class RowElement {
   constructor(attributes: IRowAttributes, children: Node[]) {
     this.options = attributes
 
-    const filteredValues = filterChildren(children)
-
-    this.cells = filteredValues
+    this.cells = filterChildren<CellElement>(children, isCellElement)
   }
 
   public getCells() {

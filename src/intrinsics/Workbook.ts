@@ -1,5 +1,6 @@
 import WorksheetElement from './Worksheet'
 import { Node } from '../interfaces'
+import { filterChildren } from '../utils/filterChildren';
 
 export type IWorkbookAttributes = Partial<{
   creator: string
@@ -9,14 +10,8 @@ export type IWorkbookAttributes = Partial<{
   lastPrinted: Date
 }>
 
-const filterChildren = (children: Node[]): WorksheetElement[] => {
-  return children.reduce<WorksheetElement[]>((acc, curr) => {
-    if (Array.isArray(curr)) {
-      return [...acc, ...filterChildren(curr)]
-    }
-
-    return WorksheetElement.isWorksheetElement(curr) ? [...acc, curr] : acc
-  }, [])
+function isWorksheet(node: Node) {
+  return WorksheetElement.isWorksheetElement(node)
 }
 
 type IWorkbookParameter = keyof IWorkbookAttributes
@@ -41,9 +36,7 @@ export class Workbook {
   constructor(attributes: IWorkbookAttributes, children: Node[]) {
     this.options = attributes
 
-    const filteredValues = filterChildren(children)
-
-    this.worksheets = filteredValues
+    this.worksheets = filterChildren<WorksheetElement>(children, isWorksheet)
   }
 
   public getOptions() {

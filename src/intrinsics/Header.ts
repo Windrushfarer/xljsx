@@ -2,17 +2,12 @@ import * as exceljs from 'exceljs'
 
 import ColumnElement from './Column'
 import { Node } from '../interfaces'
+import { filterChildren } from '../utils/filterChildren';
 
 export interface IHeaderAttributes extends Partial<exceljs.Style> {}
 
-const filterChildren = (children: Node[]): ColumnElement[] => {
-  return children.reduce<ColumnElement[]>((acc, curr) => {
-    if (Array.isArray(curr)) {
-      return [...acc, ...filterChildren(curr)]
-    }
-
-    return ColumnElement.isColumnElement(curr) ? [...acc, curr] : acc
-  }, [])
+function isColumn(node: Node) {
+  return ColumnElement.isColumnElement(node)
 }
 
 export class HeaderElement {
@@ -27,9 +22,7 @@ export class HeaderElement {
   constructor(attributes: IHeaderAttributes, children: Node[]) {
     this.options = attributes
 
-    const filteredValues = filterChildren(children)
-
-    this.columns = filteredValues
+    this.columns = filterChildren<ColumnElement>(children, isColumn)
   }
 }
 
